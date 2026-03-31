@@ -46,6 +46,11 @@ def plano_completo(db):
         relatorio_por_pasto=True,
         relatorio_fluxo_caixa=True,
         relatorio_dre=True,
+        # FIX: campos que faltavam — causavam AttributeError nos testes dos relatórios novos
+        relatorio_evolucao_patrimonio=True,
+        relatorio_resultado_mensal=True,
+        relatorio_giro_animais=True,
+        relatorio_ranking_pastos=True,
     )
     db.add(plano)
     db.commit()
@@ -59,7 +64,7 @@ def usuario(db, plano_completo):
         nome="Teste",
         email="teste@teste.com",
         senha_hash="hash",
-        plano_id=plano_completo.id
+        plano_id=plano_completo.id,
     )
     db.add(usuario)
     db.commit()

@@ -8,16 +8,16 @@ from app.domain.models.usuario import Usuario
 from app.domain.services.plano_service import validar_limite
 from decimal import Decimal
 
+
 def mover_gado(
     db: Session,
     data,
     pasto_origem_id: int,
     pasto_destino_id: int,
     quantidade: int,
-    usuario: Usuario
+    usuario: Usuario,
 ):
     try:
-
         total_movimentacoes = db.query(MovimentacaoGado).filter(
             MovimentacaoGado.usuario_id == usuario.id
         ).count()
@@ -34,40 +34,51 @@ def mover_gado(
         if quantidade <= 0:
             raise DomainError("Quantidade deve ser maior que zero")
 
-        origem = db.get(Pasto, pasto_origem_id)
-        destino = db.get(Pasto, pasto_destino_id)
+        # FIX: valida ownership de ambos os pastos
+        origem = db.query(Pasto).filter(
+            Pasto.id == pasto_origem_id,
+            Pasto.usuario_id == usuario.id,
+        ).first()
 
-        if not origem or not destino:
-            raise DomainError("Pasto de origem ou destino não encontrado")
+        destino = db.query(Pasto).filter(
+            Pasto.id == pasto_destino_id,
+            Pasto.usuario_id == usuario.id,
+        ).first()
+
+        if not origem:
+            raise DomainError("Pasto de origem não encontrado")
+
+        if not destino:
+            raise DomainError("Pasto de destino não encontrado")
 
         if quantidade > origem.quantidade_atual:
             raise DomainError("Quantidade maior que o disponível no pasto de origem")
 
-        custo_unitario = Decimal(origem.custo_medio)
+        custo_unitario = Decimal(str(origem.custo_medio))
         custo_transferido = (custo_unitario * Decimal(quantidade)).quantize(Decimal("0.01"))
 
         # Atualiza origem
         origem.quantidade_atual -= quantidade
         origem.custo_total = (
-                origem.custo_total - custo_transferido
+            Decimal(str(origem.custo_total)) - custo_transferido
         ).quantize(Decimal("0.01"))
 
         if origem.quantidade_atual > 0:
             origem.custo_medio = (
-                    origem.custo_total / Decimal(origem.quantidade_atual)
+                origem.custo_total / Decimal(origem.quantidade_atual)
             ).quantize(Decimal("0.01"))
         else:
-            origem.custo_medio = 0
-            origem.custo_total = 0
+            origem.custo_medio = Decimal("0.00")
+            origem.custo_total = Decimal("0.00")
 
         # Atualiza destino
         destino.quantidade_atual += quantidade
         destino.custo_total = (
-                destino.custo_total + custo_transferido
+            Decimal(str(destino.custo_total)) + custo_transferido
         ).quantize(Decimal("0.01"))
 
         destino.custo_medio = (
-                destino.custo_total / Decimal(destino.quantidade_atual)
+            destino.custo_total / Decimal(destino.quantidade_atual)
         ).quantize(Decimal("0.01"))
 
         movimentacao = MovimentacaoGado(

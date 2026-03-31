@@ -1,11 +1,12 @@
 from sqlalchemy import (
-    Integer, Date, ForeignKey, DateTime
+    Integer, Date, Numeric, ForeignKey, DateTime
 )
 from sqlalchemy.orm import Mapped, mapped_column
 from datetime import date, datetime
 
 from app.core.database import Base
 from sqlalchemy.orm import relationship
+
 
 class MovimentacaoGado(Base):
     __tablename__ = "movimentacoes_gado"
@@ -36,10 +37,11 @@ class MovimentacaoGado(Base):
         Integer, nullable=False
     )
 
+    # FIX: era mapped_column(Integer) — truncava casas decimais silenciosamente
     custo_unitario: Mapped[float] = mapped_column(
-        Integer, nullable=False
+        Numeric(12, 2), nullable=False
     )
 
     criado_em: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow
+        DateTime, default=lambda: datetime.now(tz=None)
     )

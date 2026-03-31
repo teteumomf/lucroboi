@@ -27,7 +27,7 @@ def criar_pasto(
     nome: str,
     tamanho_ha: float,
     tipo_pastagem: TipoPastagem,
-    usuario: Usuario
+    usuario: Usuario,
 ) -> Pasto:
     try:
         total_pastos = db.query(Pasto).filter(

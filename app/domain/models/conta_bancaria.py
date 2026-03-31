@@ -1,6 +1,6 @@
 from sqlalchemy import Integer, String, Numeric, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 
@@ -26,6 +26,7 @@ class ContaBancaria(Base):
         Numeric(14, 2), default=0
     )
 
+    # FIX: datetime.utcnow deprecated no Python 3.12+
     criado_em: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow
+        DateTime, default=lambda: datetime.now(timezone.utc)
     )

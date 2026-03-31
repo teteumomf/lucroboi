@@ -2,10 +2,11 @@ from sqlalchemy import (
     Integer, Date, Numeric, ForeignKey, DateTime
 )
 from sqlalchemy.orm import Mapped, mapped_column
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 
 from app.core.database import Base
 from sqlalchemy.orm import relationship
+
 
 class Compra(Base):
     __tablename__ = "compras"
@@ -48,6 +49,7 @@ class Compra(Base):
         Integer, ForeignKey("contas_bancarias.id"), nullable=True
     )
 
+    # FIX: datetime.utcnow deprecated no Python 3.12+
     criado_em: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow
+        DateTime, default=lambda: datetime.now(timezone.utc)
     )

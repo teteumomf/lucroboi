@@ -1,6 +1,6 @@
 from sqlalchemy import Integer, String, DateTime, Numeric, ForeignKey, Enum as SqlEnum
 from sqlalchemy.orm import Mapped, mapped_column
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
@@ -50,6 +50,7 @@ class Pasto(Base):
         String(20), default="ativo"
     )
 
+    # FIX: datetime.utcnow deprecated no Python 3.12+
     criado_em: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow
+        DateTime, default=lambda: datetime.now(timezone.utc)
     )
