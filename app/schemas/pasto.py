@@ -8,6 +8,11 @@ class PastoCreate(BaseModel):
     tipo_pastagem: TipoPastagem
 
 
+class PastoUpdate(BaseModel):
+    nome: str | None = None
+    tamanho_ha: float | None = None
+    tipo_pastagem: TipoPastagem | None = None
+
 class PastoResponse(BaseModel):
     id: int
     nome: str

@@ -7,6 +7,8 @@ class ContaCreate(BaseModel):
     saldo_inicial: float = 0
 
 
+class ContaUpdate(BaseModel):
+    nome: str | None = None
 class ContaResponse(BaseModel):
     id: int
     nome: str
